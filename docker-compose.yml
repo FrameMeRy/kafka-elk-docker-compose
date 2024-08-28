@@ -1,4 +1,4 @@
-version: '2'
+  version: '2'
 services:
   kibana:
     image: docker.elastic.co/kibana/kibana:5.4.2
@@ -17,14 +17,14 @@ services:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms6g -Xmx6g"
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    mem_limit: 1g
+    mem_limit: 8g
     volumes:
-      - "./esdata:/usr/share/elasticsearch/data"
+      - "./esdata:/var/lib/elasticsearch/data"
     ports:
       - "9200:9200"
   logstash:
@@ -36,6 +36,8 @@ services:
     ports:
       - "9600:9600"
       - "7777:7777"
+      - "5000:5000"
+
     links:
       - elasticsearch
       - kafka1
@@ -61,6 +63,10 @@ services:
       KAFKA_ZOOKEEPER_CONNECT:  zoo1:2181,zoo2:2181,zoo3:2181
       KAFKA_CREATE_TOPICS: "log:3:3"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_LISTENERS: PLAINTEXT://kafka1:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092 
+      KAFKA_ADVERTISED_HOST_NAME: kafka1
+
   kafka2:
     image: wurstmeister/kafka
     depends_on:
@@ -81,6 +87,10 @@ services:
       KAFKA_ZOOKEEPER_CONNECT:  zoo1:2181,zoo2:2181,zoo3:2181
       KAFKA_CREATE_TOPICS: "log:3:3"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_LISTENERS: PLAINTEXT://kafka2:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092 
+      KAFKA_ADVERTISED_HOST_NAME: kafka2
+
   kafka3:
     image: wurstmeister/kafka
     depends_on:
@@ -101,6 +111,10 @@ services:
       KAFKA_ZOOKEEPER_CONNECT:  zoo1:2181,zoo2:2181,zoo3:2181
       KAFKA_CREATE_TOPICS: "log:3:3"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_LISTENERS: PLAINTEXT://kafka3:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:9092 
+      KAFKA_ADVERTISED_HOST_NAME: kafka3
+
   zoo1:
     image: elevy/zookeeper:latest
     environment:
